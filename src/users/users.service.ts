@@ -1,72 +1,42 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Req, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcryptjs from 'bcryptjs';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
+import { JwtService } from '@nestjs/jwt';
+import { response,Request, request } from 'express';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+    private readonly jwtService: JwtService) {}
 
-  async registerUser(createUserDto: CreateUserDto): Promise<User> {
-    const existingUser = await this.userRepository.findOne({
-      where: { email: createUserDto.email },
-    });
 
-    if (existingUser) {
-      throw new HttpException(
-        'Email already registered!',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    try {
-      const { name, email, password, address } = createUserDto;
-
-      const user = await this.userRepository.save({
-        name,
-        email,
-        password: await bcryptjs.hash(password, 12),
-        address,
-      });
-
-      return user;
-    } catch (error) {
-      console.error(error);
-
-      if (error === '23505') {
-        console.error(`Unique constraint ${error.constraint} failed`);
-        throw new HttpException(
-          'There is already a user with this email.',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-
-      throw new HttpException(
-        'Internal Server Error',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+  async registerUser(createUserDto: CreateUserDto){
   }
 
-  // Uncomment and implement these methods if needed
-  // findAll() {
-  //   return this.userRepository.find();
-  // }
+  async loginUser(loginUserDto: LoginUserDto){
+  }
+  
 
-  // findOne(id: number) {
-  //   return this.userRepository.findOne(id);
-  // }
+  findAll() {
+    return this.userRepository.find();
+  }
 
-  // update(id: number, updateUserDto: UpdateUserDto) {
-  //   // Implement update logic here
-  // }
+  findOne(id: number) {
+    return this.userRepository.findOne({where:{id}});
+  }
 
-  // remove(id: number) {
-  //   // Implement remove logic here
-  // }
+  update(id: number, updateUserDto: UpdateUserDto) {
+   
+  }
+
+  remove(id: number) {
+
+  }
 }

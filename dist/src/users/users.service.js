@@ -17,42 +17,32 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const user_entity_1 = require("../users/entities/user.entity");
 const typeorm_2 = require("typeorm");
-const bcryptjs = require("bcryptjs");
+const jwt_1 = require("@nestjs/jwt");
 let UsersService = class UsersService {
-    constructor(userRepository) {
+    constructor(userRepository, jwtService) {
         this.userRepository = userRepository;
+        this.jwtService = jwtService;
     }
     async registerUser(createUserDto) {
-        const existingUser = await this.userRepository.findOne({
-            where: { email: createUserDto.email },
-        });
-        if (existingUser) {
-            throw new common_1.HttpException('Email already registered!', common_1.HttpStatus.BAD_REQUEST);
-        }
-        try {
-            const { name, email, password, address } = createUserDto;
-            const user = await this.userRepository.save({
-                name,
-                email,
-                password: await bcryptjs.hash(password, 12),
-                address,
-            });
-            return user;
-        }
-        catch (error) {
-            console.error(error);
-            if (error === '23505') {
-                console.error(`Unique constraint ${error.constraint} failed`);
-                throw new common_1.HttpException('There is already a user with this email.', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-            throw new common_1.HttpException('Internal Server Error', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    }
+    async loginUser(loginUserDto) {
+    }
+    findAll() {
+        return this.userRepository.find();
+    }
+    findOne(id) {
+        return this.userRepository.findOne({ where: { id } });
+    }
+    update(id, updateUserDto) {
+    }
+    remove(id) {
     }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        jwt_1.JwtService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map
