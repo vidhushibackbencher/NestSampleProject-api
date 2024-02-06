@@ -1,21 +1,16 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { config } from '../config/orm.config';
+
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/entities/user.entity';
 import { AuthModule } from './auth/auth.modules';
+import { dataSourceOptions } from 'db/data-source';
+import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'password',
-      database: 'crudOperation',
-      entities: [User], 
-      synchronize: true,
-    }),
+    TypeOrmModule.forRoot(
+      dataSourceOptions
+    ),
     AuthModule,
   ],
 })
