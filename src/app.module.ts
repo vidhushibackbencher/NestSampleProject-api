@@ -1,17 +1,16 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './users/entities/user.entity';
-import { AuthModule } from './auth/auth.modules';
-import { dataSourceOptions } from 'db/data-source';
-import { JwtModule } from '@nestjs/jwt';
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { dataSourceOptions } from "db/data-source";
+import { AuthModule } from "./modules/auth.modules";
+import { UsersModule } from "./modules/users.module";
+// import { RolesGuard } from "./guards/role-guard";
+import { CaslModule } from "./casl/casl.module";
 @Module({
   imports: [
-    TypeOrmModule.forRoot(
-      dataSourceOptions
-    ),
+    TypeOrmModule.forRoot(dataSourceOptions),
     AuthModule,
+    UsersModule,
+    CaslModule,
   ],
 })
 export class AppModule {}
