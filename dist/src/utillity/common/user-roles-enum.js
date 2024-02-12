@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Roles = void 0;
 var Roles;
 (function (Roles) {
-    Roles["ADMIN"] = "admin";
-    Roles["USER"] = "user";
+    Roles["Admin"] = "admin";
+    Roles["User"] = "user";
 })(Roles || (exports.Roles = Roles = {}));
 //# sourceMappingURL=user-roles-enum.js.map
