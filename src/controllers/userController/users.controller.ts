@@ -1,12 +1,8 @@
 import {
   Controller,
-  // Get,
   Post,
   Body,
   Req,
-  // Patch,
-  // Param,
-  // Delete,
   UseGuards,
   ForbiddenException,
   Get,
@@ -15,10 +11,7 @@ import {
   Patch,
 } from "@nestjs/common";
 import { UsersService } from "../../services/userService/users.service";
-
-// import { UpdateUserDto } from "../../dto/update-user.dto";
 import { UserRegister } from "../../dto/register.dto";
-// import { Roles } from "../../utillity/common/user-roles-enum";
 import { JwtAuthGuard } from "src/guards/jwt-auth.gurad";
 import {
   Action,
@@ -27,7 +20,6 @@ import {
 import { User } from "src/models/user.entity";
 import { ForbiddenError } from "@casl/ability";
 import { UpdateUserDto } from "src/dto/update-user.dto";
-
 @Controller("user")
 export class UserController {
   constructor(
@@ -51,20 +43,54 @@ export class UserController {
     }
   }
   @UseGuards(JwtAuthGuard)
-  @Get("/")
-  findAll() {
-    return this.userService.findAll();
+  @Get("/all")
+  findAll(@Req() req: any) {
+    const user = req.user;
+    const ability = this.abilityFactory.defineAbility(user);
+    try {
+      ForbiddenError.from(ability).throwUnlessCan(Action.Read, User);
+
+      return this.userService.findAll();
+    } catch (error) {
+      if (error instanceof ForbiddenError) {
+        throw new ForbiddenException(error.message);
+      }
+    }
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch(":id")
-  update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  @Patch("update/:id")
+  update(
+    @Param("id") id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @Req() req: any,
+  ) {
+    const user = req.user;
+    const ability = this.abilityFactory.defineAbility(user);
+    try {
+      ForbiddenError.from(ability).throwUnlessCan(Action.Read, User);
+
+      return this.userService.update(+id, updateUserDto);
+    } catch (error) {
+      if (error instanceof ForbiddenError) {
+        throw new ForbiddenException(error.message);
+      }
+    }
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.userService.remove(+id);
+  @Delete("/delete/:id")
+  remove(@Param("id") id: number, @Req() req: any) {
+    const user = req.user;
+    const ability = this.abilityFactory.defineAbility(user);
+    try {
+      ForbiddenError.from(ability).throwUnlessCan(Action.Delete, User);
+
+      return this.userService.remove(+id, req);
+    } catch (error) {
+      if (error instanceof ForbiddenError) {
+        throw new ForbiddenException(error.message);
+      }
+    }
   }
 }

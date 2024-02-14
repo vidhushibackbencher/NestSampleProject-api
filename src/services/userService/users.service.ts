@@ -3,6 +3,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Req,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -68,16 +69,57 @@ export class UsersService {
     return this.userRepository.find();
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    const user: User = new User();
-    user.name = updateUserDto.name;
-    user.userName = updateUserDto.userName;
-    user.password = updateUserDto.password;
-    user.id = id;
-    return this.userRepository.save(user);
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    try {
+      const existingUser = await this.userRepository.findOne({ where: { id } });
+      console.log(existingUser);
+      if (!existingUser) {
+        throw new HttpException("User not found.", HttpStatus.NOT_FOUND);
+      }
+      existingUser.name = updateUserDto.name;
+      existingUser.userName = updateUserDto.userName;
+      existingUser.password = updateUserDto.password;
+
+      // Save the changes to the database
+      const updatedUser = await this.userRepository.save(existingUser);
+
+      // Optionally, you can return the updated user
+      return updatedUser;
+    } catch (error) {
+      // Handle known HTTP exceptions
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      // Handle unexpected errors with a generic message
+      throw new HttpException(
+        "Internal Server Error",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
-  remove(id: number) {
-    return this.userRepository.delete(id);
+  async remove(id: number, @Req() req: any) {
+    try {
+      const userId = await this.userRepository.findOne({ where: { id } });
+      if (!userId) {
+        throw new HttpException("Invalid Id.", HttpStatus.NOT_FOUND);
+      }
+      if (id !== req.user.id) {
+        await this.userRepository.delete(+id);
+        return { message: "user Delete successfully" };
+      } else {
+        throw new HttpException(
+          "cannot delete itself",
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        "Internal Server Error",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

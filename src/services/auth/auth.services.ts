@@ -3,10 +3,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  UnauthorizedException,
 } from "@nestjs/common";
-import { Request, Response } from "express";
-import { sign, verify } from "jsonwebtoken";
 import { InjectRepository } from "@nestjs/typeorm";
 
 import { Repository } from "typeorm";
